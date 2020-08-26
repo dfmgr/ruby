@@ -169,7 +169,7 @@ failexitcode
 
 run_postinst() {
     run_postinst_global
-    
+    ln_sf "$APPDIR/rvmrc" "$HOME/.rvmrc"
 }
 
 execute \
