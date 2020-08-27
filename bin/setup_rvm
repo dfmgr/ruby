@@ -50,10 +50,8 @@ if [ -n "$(command -v nvm)" ]; then
   printf_green "RVM is already installed"
 else
   printf_red "installing RVM!"
-  gpg --keyserver hkp://pool.sks-keyservers.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB >/dev/null 2>&1 ||
-    curl -sSL https://rvm.io/mpapis.asc | gpg2 --import - >/dev/null 2>&1 && 
-    curl -sSL https://rvm.io/pkuczynski.asc | gpg2 --import - >/dev/null 2>&1 &&
-    curl -sSL https://get.rvm.io | bash -s stable >/dev/null 2>&1 &&
+   curl -LSsq https://raw.githubusercontent.com/rvm/rvm/master/binscripts/rvm-installer > /tmp/rvm_install && chmod 755 /tmp/rvm_install
+   bash /tmp/rvm_install master --version latest --path "$HOME/.local/share/rvm" --ignore-dotfiles --ruby --rails >/dev/null 2>&1 &&
     [[ -s "$HOME/.local/share/rvm/scripts/rvm" ]] && source "$HOME/.local/share/rvm/scripts/rvm" &&
     devnull rvm autolibs enable &&
     devnull rvm install "ruby-2.7.1" --auto-dotfiles &&
