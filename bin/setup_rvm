@@ -40,8 +40,8 @@ fi
 
 # Set options
 
-[[ -s "source /usr/local/share/rvm/scripts/rvm" ]] && source /usr/local/share/rvm/scripts/rvm
-[[ -s "$HOME/.local/share/rvm/scripts/rvm" ]] && source "$HOME/.local/share/rvm/scripts/rvm"
+[[ -f "/usr/local/share/rvm/scripts/rvm" ]] && source /usr/local/share/rvm/scripts/rvm
+[[ -f "$HOME/.local/share/rvm/scripts/rvm" ]] && source "$HOME/.local/share/rvm/scripts/rvm"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -50,17 +50,27 @@ fi
 if [ -n "$(command -v rvm)" ]; then
   printf_green "RVM is already installed"
 else
-  printf_red "installing RVM!"
-   curl -LSsq https://raw.githubusercontent.com/rvm/rvm/master/binscripts/rvm-installer > /tmp/rvm_install && chmod 755 /tmp/rvm_install
-   if [ "$1" = "--system" ]; then sudo bash /tmp/rvm_install master --version latest --path "/usr/local/share/rvm" --ignore-dotfiles --ruby --rails >/dev/null 2>&1
-   else bash /tmp/rvm_install master --version latest --path "/usr/local/share/rvm" --ignore-dotfiles --ruby --rails >/dev/null 2>&1; fi && 
-   rm -Rf /tmp/rvm_install &&
-   if [[ -s "/usr/local/share/rvm/scripts/rvm" ]]; then source "/usr/local/share/rvm/scripts/rvm"; fi &&
-   if [[ -s "$HOME/.local/share/rvm/scripts/rvm" ]]; then source "$HOME/.local/share/rvm/scripts/rvm"; fi  &&
-    devnull rvm autolibs enable &&
-    devnull rvm install "ruby-2.7.1" --auto-dotfiles &&
-    devnull rvm use "ruby-2.7.1" --default --create || printf_exit "Installation failed"
-  printf_green "Finished installing RVM!"
+  printf_green "installing RVM!"
+   if [ "$1" = "--system" ]; then
+     sudo gpg --keyserver hkp://pool.sks-keyservers.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB >/dev/null 2>&1
+     sudo curl -LSsq https://raw.githubusercontent.com/rvm/rvm/master/binscripts/rvm-installer > /tmp/rvm_install && chmod 755 /tmp/rvm_install &&
+     sudo bash /tmp/rvm_install master --version latest --path /usr/local/share/rvm --ignore-dotfiles --ruby --rails >/dev/null 2>&1 &&
+     [[ -f /usr/local/share/rvm/scripts/rvm ]] && sudo source /usr/local/share/rvm/scripts/rvm &&
+     sudo rm -Rf /tmp/rvm_install &&
+       devnull sudo rvm autolibs enable &&
+       devnull sudo rvm install "ruby-2.7.1" --auto-dotfiles &&
+       devnull sudo rvm use "ruby-2.7.1" --default --create && 
+       printf_green "Finished installing RVM!" || printf_exit "Installation failed"
+   else 
+     gpg --keyserver hkp://pool.sks-keyservers.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB >/dev/null 2>&1
+     curl -LSsq https://raw.githubusercontent.com/rvm/rvm/master/binscripts/rvm-installer > /tmp/rvm_install && chmod 755 /tmp/rvm_install
+     bash /tmp/rvm_install master --version latest --path "$HOME/.local/share/rvm/scripts/rvm" --ignore-dotfiles --ruby --rails >/dev/null 2>&1
+     [[ -f "$HOME/.local/share/rvm/scripts/rvm" ]] && source "$HOME/.local/share/rvm/scripts/rvm" &&
+       devnull rvm autolibs enable &&
+       devnull rvm install "ruby-2.7.1" --auto-dotfiles &&
+       devnull rvm use "ruby-2.7.1" --default --create &&
+       printf_green "Finished installing RVM!" || printf_exit "Installation failed"
+   fi
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
