@@ -1,3 +1,9 @@
-rvm_path="$HOME/.local/share/rvm"
-rvm_install_on_use_flag=1
 rvm_project_rvmrc=1
+rvm_install_on_use_flag=1
+rvm_stored_umask=022
+rvmsudo_secure_path=0
+rvm_cd_complete_flag=1
+rvm_user_install_flag=1 
+rvm_ignore_gemrc_issues=1
+rvm_silence_path_mismatch_check_flag=1
+rvm_path="$HOME/.local/share/rvm"
