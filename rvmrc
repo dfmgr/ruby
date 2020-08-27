@@ -6,4 +6,3 @@ rvm_cd_complete_flag=1
 rvm_user_install_flag=1 
 rvm_ignore_gemrc_issues=1
 rvm_silence_path_mismatch_check_flag=1
-rvm_path="$HOME/.local/share/rvm"
