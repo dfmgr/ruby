@@ -40,23 +40,25 @@ fi
 
 # Set options
 
-[[ -s "/etc/profile.d/rvm.sh" ]] && source "/etc/profile.d/rvm.sh"
-[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"
+[[ -s "$HOME/.local/share/rvm/scripts/rvm" ]] && source "$HOME/.local/share/rvm/scripts/rvm"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # main program
 
-if ! cmd_exists rvm; then
+if [ -n "$(command -v nvm)" ]; then
+  printf_green "RVM is already installed"
+else
   printf_red "installing RVM!"
-    devnull curl -sSLq https://get.rvm.io | bash -s stable || printf_exit "Installation failed"
-  [[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"
-  devnull rvm autolibs enable &&
+  gpg --keyserver hkp://pool.sks-keyservers.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB >/dev/null 2>&1 ||
+    curl -sSL https://rvm.io/mpapis.asc | gpg2 --import - >/dev/null 2>&1 && 
+    curl -sSL https://rvm.io/pkuczynski.asc | gpg2 --import - >/dev/null 2>&1 &&
+    curl -sSL https://get.rvm.io | bash -s stable >/dev/null 2>&1 &&
+    [[ -s "$HOME/.local/share/rvm/scripts/rvm" ]] && source "$HOME/.local/share/rvm/scripts/rvm" &&
+    devnull rvm autolibs enable &&
     devnull rvm install "ruby-2.7.1" --auto-dotfiles &&
     devnull rvm use "ruby-2.7.1" --default --create || printf_exit "Installation failed"
   printf_green "Finished installing RVM!"
-else
-  printf_green "RVM is already installed"
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
