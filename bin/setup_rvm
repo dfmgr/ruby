@@ -40,19 +40,23 @@ fi
 
 # Set options
 
+[[ -s "source /usr/local/share/rvm/scripts/rvm" ]] && source /usr/local/share/rvm/scripts/rvm
 [[ -s "$HOME/.local/share/rvm/scripts/rvm" ]] && source "$HOME/.local/share/rvm/scripts/rvm"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # main program
 
-if [ -n "$(command -v nvm)" ]; then
+if [ -n "$(command -v rvm)" ]; then
   printf_green "RVM is already installed"
 else
   printf_red "installing RVM!"
    curl -LSsq https://raw.githubusercontent.com/rvm/rvm/master/binscripts/rvm-installer > /tmp/rvm_install && chmod 755 /tmp/rvm_install
-   bash /tmp/rvm_install master --version latest --path "$HOME/.local/share/rvm" --ignore-dotfiles --ruby --rails >/dev/null 2>&1 &&
-    [[ -s "$HOME/.local/share/rvm/scripts/rvm" ]] && source "$HOME/.local/share/rvm/scripts/rvm" &&
+   if [ "$1" = "--system" ]; then sudo bash /tmp/rvm_install master --version latest --path "/usr/local/share/rvm" --ignore-dotfiles --ruby --rails >/dev/null 2>&1
+   else bash /tmp/rvm_install master --version latest --path "/usr/local/share/rvm" --ignore-dotfiles --ruby --rails >/dev/null 2>&1; fi && 
+   rm -Rf /tmp/rvm_install &&
+   if [[ -s "/usr/local/share/rvm/scripts/rvm" ]]; then source "/usr/local/share/rvm/scripts/rvm"; fi &&
+   if [[ -s "$HOME/.local/share/rvm/scripts/rvm" ]]; then source "$HOME/.local/share/rvm/scripts/rvm"; fi  &&
     devnull rvm autolibs enable &&
     devnull rvm install "ruby-2.7.1" --auto-dotfiles &&
     devnull rvm use "ruby-2.7.1" --default --create || printf_exit "Installation failed"
