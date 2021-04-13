@@ -70,7 +70,7 @@ main() {
     devnull rvm autolibs enable &&
     devnull rvm install "ruby-2.7.1" --auto-dotfiles &&
     devnull rvm use "ruby-2.7.1" --default --create &&
-    printf_green "Finished installing rVM!" || printf_exit "Installation failed"
+    printf_green "Finished installing rVM!" || printf_exit "Installation failed" >&2
     fi
   return "${exitCode:-$?}"
 }

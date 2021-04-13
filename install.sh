@@ -146,6 +146,9 @@ fi
 # run post install scripts
 run_postinst() {
   dfmgr_run_post
+  if [ ! -d "$HOME/.local/share/rvm/.git" ] && [ -f "$INSTDIR/bin/setup_rvm" ];then
+    "$INSTDIR/bin/setup_rvm"
+  fi
   ln_sf "$APPDIR/rvmrc" "$HOME/.rvmrc"
 }
 #
