@@ -56,22 +56,26 @@ main() {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # begin main app
   local RVMPATH="$HOME/.local/share/rvm"
-  export PATH="$RVMPATH/bin:$PATH"
+  local PATH="$RVMPATH/bin:$PATH"
+  local gpg_keys="409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB"
+  local install_script="https://raw.githubusercontent.com/rvm/rvm/master/binscripts/rvm-installer"
+  local install_cmd="/tmp/rvm_install master --version latest --path $RVMPATH/scripts/rvm --ignore-dotfiles --ruby --rails"
+  export PATH RVMPATH
   [[ -d "$RVMPATH/.git" ]] || rm -Rf "$RVMPATH" &>/dev/null
   [[ -f "$RVMPATH/scripts/rvm" ]] && source "$RVMPATH/scripts/rvm"
   if [ -n "$(command -v rvm)" ]; then
     printf_green "RVM is already installed"
   else
     printf_green "installing RVM!"
-    gpg --keyserver hkp://pool.sks-keyservers.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB >/dev/null 2>&1 &&
-    curl -LSsq https://raw.githubusercontent.com/rvm/rvm/master/binscripts/rvm-installer >/tmp/rvm_install &&
+    gpg --keyserver hkp://pool.sks-keyservers.net --recv-keys $gpg_keys &>/dev/null || printf_exit "Failed to retrieve gpg keys"
+    curl -q -LSs "$install_script" >/tmp/rvm_install || printf_exit "Failed to download the script"
     chmod 755 /tmp/rvm_install &&
-    bash /tmp/rvm_install master --version latest --path "$RVMPATH/scripts/rvm" --ignore-dotfiles --ruby --rails >/dev/null 2>&1 &&
+      bash -c "$install_cmd &>/dev/null" || printf_exit "Failed to install RVM"
     [[ -f "$RVMPATH/scripts/rvm" ]] && source "$RVMPATH/scripts/rvm" &&
     devnull rvm autolibs enable &&
     devnull rvm install "ruby-2.7.1" --auto-dotfiles &&
     devnull rvm use "ruby-2.7.1" --default --create &&
-    printf_green "Finished installing rVM!" || printf_exit "Installation failed" >&2
+    printf_green "Finished installing RVM!" || printf_exit "Installation failed" >&2
   fi
   return "${exitCode:-$?}"
 }
