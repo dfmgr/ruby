@@ -146,9 +146,7 @@ fi
 # run post install scripts
 run_postinst() {
   dfmgr_run_post
-  if [ -f "$INSTDIR/bin/setup_rvm" ];then
-    "$INSTDIR/bin/setup_rvm"
-  fi
+  [ -f "$INSTDIR/bin/setup_rvm" ] && "$INSTDIR/bin/setup_rvm"
   ln_sf "$APPDIR/rvmrc" "$HOME/.rvmrc"
 }
 #
