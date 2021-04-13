@@ -57,6 +57,7 @@ main() {
   # begin main app
   local RVMPATH="$HOME/.local/share/rvm"
   export PATH="$RVMPATH/bin:$PATH"
+  [[ -d "$RVMPATH/.git" ]] || rm -Rf "$RVMPATH" &>/dev/null
   [[ -f "$RVMPATH/scripts/rvm" ]] && source "$RVMPATH/scripts/rvm"
   if [ -n "$(command -v rvm)" ]; then
     printf_green "RVM is already installed"
@@ -71,7 +72,7 @@ main() {
     devnull rvm install "ruby-2.7.1" --auto-dotfiles &&
     devnull rvm use "ruby-2.7.1" --default --create &&
     printf_green "Finished installing rVM!" || printf_exit "Installation failed" >&2
-    fi
+  fi
   return "${exitCode:-$?}"
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
