@@ -67,8 +67,10 @@ main() {
     printf_green "RVM is already installed"
   else
     printf_green "installing RVM!"
-    gpg --keyserver hkp://pool.sks-keyservers.net --recv-keys $gpg_keys &>/dev/null || printf_exit "Failed to retrieve gpg keys" >&2
-    curl -q -LSs "$install_script" >/tmp/rvm_install || printf_exit "Failed to download the script" >&2
+    #gpg --keyserver hkp://pool.sks-keyservers.net --recv-keys $gpg_keys &>/dev/null || printf_exit "Failed to retrieve gpg keys" >&2
+    curl -q -sSL https://rvm.io/mpapis.asc | gpg --import - && \
+      curl -q -sSL https://rvm.io/pkuczynski.asc | gpg --import - && \
+      curl -q -LSs "$install_script" >/tmp/rvm_install || printf_exit "Failed to download the script" >&2
     chmod 755 /tmp/rvm_install && bash -c "$install_cmd &>/dev/null" || printf_exit "Failed to install RVM"
     [[ -f "$RVMPATH/scripts/rvm" ]] && source "$RVMPATH/scripts/rvm" &&
     devnull rvm autolibs enable &&
