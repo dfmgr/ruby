@@ -5,7 +5,7 @@ Setup a ruby development system with rvm
 Automatic install/update:
 
 ```shell
-bash -c "$(curl -LSs https://github.com/dfmgr/ruby/raw/master/install.sh)"
+bash -c "$(curl -LSs https://github.com/dfmgr/ruby/raw/main/install.sh)"
 ```
 
 Manual install:
