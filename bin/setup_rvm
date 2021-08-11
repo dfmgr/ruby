@@ -6,7 +6,7 @@ HOME="${USER_HOME:-${HOME}}"
 SRC_DIR="${BASH_SOURCE%/*}"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #set opts
-trap 'exitCode=${exitCode:-$?};[[ -d "$TMPDIR" ]] && rm -Rf "$TMPDIR" &>/dev/null' EXIT
+trap 'exitCode=${exitCode:-$?};[[ -d "$HOME/tmp/rvm_install" ]] && rm -Rf "$HOME/tmp/rvm_install" &>/dev/null' EXIT
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ##@Version       : 031520211551-git
@@ -60,21 +60,20 @@ main() {
   local RVMPATH="$rvm_path"
   local PATH="$RVMPATH/bin:$PATH"
   local GITREPO="https://github.com/rvm/rvm"
-  local TMPDIR="$HOME/tmp/rvm_install"
   local version="2.7.4"
   export PATH RVMPATH rvm_path
   printf_blue "Initializing RVM Setup"
-  [[ -d "$TMPDIR" ]] && rm -Rf "$TMPDIR" &>/dev/null
+  [[ -d "$HOME/tmp/rvm_install" ]] && rm -Rf "$HOME/tmp/rvm_install" &>/dev/null
   [[ -d "$RVMPATH/.git" ]] || rm -Rf "$RVMPATH" &>/dev/null
   [[ -f "$RVMPATH/scripts/rvm" ]] && source "$RVMPATH/scripts/rvm"
   printf_green "Downloading RVM from $GITREPO"
-  if git clone "$GITREPO" -q "$TMPDIR" &>/dev/null; then
+  if git clone "$GITREPO" -q "$HOME/tmp/rvm_install" &>/dev/null; then
     printf_blue "Downloaded RVM from $GITREPO"
   else
     printf_exit "Failed to download the repo" >&2
   fi
   printf_green "Installing RVM to $RVMPATH"
-  cd "$TMPDIR" && bash -c "$TMPDIR/install" &>/dev/null
+  cd "$HOME/tmp/rvm_install" && bash -c "$HOME/tmp/rvm_install/install" &>/dev/null
   [[ -f "$RVMPATH/scripts/rvm" ]] && source "$RVMPATH/scripts/rvm" &&
     printf_green "Installing RVM ruby $version" &&
     rvm autolibs enable &>/dev/null &&
