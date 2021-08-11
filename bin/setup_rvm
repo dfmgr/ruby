@@ -67,7 +67,7 @@ main() {
   [[ -f "$RVMPATH/scripts/rvm" ]] && source "$RVMPATH/scripts/rvm"
   printf_green "installing RVM.... This may take some time"
   git clone "$GITREPO" -q "$TMPDIR" && printf_blue "Downloaded RVM from $GITREPO" || printf_exit "Failed to download the repo from $GITREPO" >&2
-  cd "$TMPDIR" && bash -sc "$TMPDIR/install"
+  cd "$TMPDIR" && bash -c "$TMPDIR/install"
   [[ -f "$RVMPATH/scripts/rvm" ]] && source "$RVMPATH/scripts/rvm" &&
     rvm autolibs enable &>/dev/null &&
     rvm install "ruby-2.7.1" --auto-dotfiles &>/dev/null &&
