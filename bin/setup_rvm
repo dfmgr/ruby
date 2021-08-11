@@ -70,7 +70,7 @@ main() {
   printf_green "Downloading RVM from $GITREPO"
   git clone "$GITREPO" -q "$TMPDIR" && printf_blue "Downloaded RVM from $GITREPO" || printf_exit "Failed to download the repo" >&2
   printf_green "Installing RVM to $RVMPATH"
-  cd "$TMPDIR" && bash -c "$TMPDIR/install"
+  cd "$TMPDIR" && bash -c "$TMPDIR/install" &>/dev/null
   [[ -f "$RVMPATH/scripts/rvm" ]] && source "$RVMPATH/scripts/rvm" &&
     printf_green "Installing RVM ruby $version" &&
     rvm autolibs enable &>/dev/null &&
