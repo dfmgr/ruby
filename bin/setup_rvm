@@ -36,7 +36,7 @@ fi
 # helper function
 __version() { app_version; }
 __help() {
-  app_help "Usage: install_rvm  -  install_rvm --version"  \
+  app_help "Usage: install_rvm  -  install_rvm --version" \
     "-v, --version          -  display version" \
     "-h, --help             -  display help"
 }
@@ -46,8 +46,8 @@ main() {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # options
   case $1 in
-    -v | --version) __version ;;
-    -h | --help) __help ;;
+  -v | --version) __version ;;
+  -h | --help) __help ;;
   esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Required app check
@@ -57,29 +57,23 @@ main() {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # begin main app
   local RVMPATH="$HOME/.local/share/rvm"
+  local INSTDIR="$RVMPATH/installer"
   local PATH="$RVMPATH/bin:$PATH"
-  local gpg_keys="409B6B1796C275462A1703113804BB82D39DC0E3"
-  local install_script="https://raw.githubusercontent.com/rvm/rvm/master/binscripts/rvm-installer"
-  local install_cmd="/tmp/rvm_install --version latest --path $RVMPATH/scripts/rvm --ignore-dotfiles --ruby --rails"
+  local install_cmd="$INSTDIR/install --version latest --path $RVMPATH/scripts/rvm --ignore-dotfiles --ruby --rails"
   export PATH RVMPATH
   [[ -d "$RVMPATH/.git" ]] || rm -Rf "$RVMPATH" &>/dev/null
   [[ -f "$RVMPATH/scripts/rvm" ]] && source "$RVMPATH/scripts/rvm"
   if [ -n "$(command -v rvm)" ]; then
     printf_green "RVM is already installed"
   else
-    sudo true
     printf_green "installing RVM.... This may take some time"
-    sudo gpg --keyserver hkp://pool.sks-keyservers.net --recv-keys $gpg_keys &>/dev/null
-    curl -q -sSL https://rvm.io/mpapis.asc | sudo gpg --import - &>/dev/null &&
-      curl -q -sSL https://rvm.io/pkuczynski.asc | sudo gpg --import - &>/dev/null &&
-      sudo gpg --refresh-keys &>/dev/null || printf_exit "Failed to retrieve gpg keys" >&2
-    curl -q -LSs "$install_script" >/tmp/rvm_install 2>/dev/null || printf_exit "Failed to download the script" >&2
-    chmod 755 /tmp/rvm_install && $install_cmd &>/dev/null || printf_exit "Failed to install RVM"
+    git clone https://github.com/rvm/rvm -q "$INSTDIR" || printf_exit "Failed to download the repo" >&2
+    chmod 755 "$INSTDIR/install" && $install_cmd &>/dev/null || printf_exit "Failed to install RVM"
     [[ -f "$RVMPATH/scripts/rvm" ]] && source "$RVMPATH/scripts/rvm" &&
-    rvm autolibs enable &>/dev/null &&
-    rvm install "ruby-2.7.1" --auto-dotfiles &>/dev/null &&
-    rvm use "ruby-2.7.1" --default --create &>/dev/null &&
-    printf_green "Finished installing RVM!" || printf_exit "Installation of RVM has failed" >&2
+      rvm autolibs enable &>/dev/null &&
+      rvm install "ruby-2.7.1" --auto-dotfiles &>/dev/null &&
+      rvm use "ruby-2.7.1" --default --create &>/dev/null &&
+      printf_green "Finished installing RVM!" || printf_exit "Installation of RVM has failed" >&2
   fi
   return "${exitCode:-$?}"
 }
@@ -90,4 +84,3 @@ main "$@"
 exit $?
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end
-
