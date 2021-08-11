@@ -56,9 +56,8 @@ main() {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # begin main app
   local RVMPATH="$HOME/.local/share/rvm"
-  local INSTDIR="$RVMPATH/installer"
   local PATH="$RVMPATH/bin:$PATH"
-  local install_cmd="$INSTDIR/install --version latest --path $RVMPATH/scripts/rvm --ignore-dotfiles --ruby --rails"
+  local GITREPO="https://github.com/rvm/rvm"
   export PATH RVMPATH
   [[ -d "$RVMPATH/.git" ]] || rm -Rf "$RVMPATH" &>/dev/null
   [[ -f "$RVMPATH/scripts/rvm" ]] && source "$RVMPATH/scripts/rvm"
@@ -66,8 +65,15 @@ main() {
     printf_green "RVM is already installed"
   else
     printf_green "installing RVM.... This may take some time"
-    git clone https://github.com/rvm/rvm -q "$INSTDIR" || printf_exit "Failed to download the repo" >&2
-    chmod 755 "$INSTDIR/install" && $install_cmd &>/dev/null || printf_exit "Failed to install RVM"
+    if [ -d "$RVMPATH./git" ]; then
+      git -C "$RVMPATH" &>/dev/null && printf_blue "Updated RVM from " || printf_exit "Failed to download the repo from $GITREPO" >&2
+      cd "$RVMPATH" && bash -s install
+      bash -c $RVMPATH/install &>/dev/null
+    else
+      git clone "$GITREPO" -q "$RVMPATH" && printf_blue "Downloaded RVM from $GITREPO" || printf_exit "Failed to download the repo from $GITREPO" >&2
+      cd "$RVMPATH" && bash -s install
+      bash -c $RVMPATH/install --path $RVMPATH/scripts/rvm --ignore-dotfiles --ruby --rails &>/dev/null || printf_exit "Failed to install RVM"
+    fi
     [[ -f "$RVMPATH/scripts/rvm" ]] && source "$RVMPATH/scripts/rvm" &&
       rvm autolibs enable &>/dev/null &&
       rvm install "ruby-2.7.1" --auto-dotfiles &>/dev/null &&
