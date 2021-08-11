@@ -7,3 +7,4 @@ rvm_user_install_flag=1
 rvm_ignore_gemrc_issues=1
 rvm_silence_path_mismatch_check_flag=1
 rvm_autoinstall_bundler_flag=1
+rvm_project_rvmrc_default=1
