@@ -67,11 +67,11 @@ main() {
     printf_green "installing RVM.... This may take some time"
     if [ -d "$RVMPATH./git" ]; then
       git -C "$RVMPATH" &>/dev/null && printf_blue "Updated RVM from " || printf_exit "Failed to download the repo from $GITREPO" >&2
-      cd "$RVMPATH" && bash -s install
+      cd "$RVMPATH" && bash -s install &>/dev/null
       bash -c $RVMPATH/install &>/dev/null
     else
       git clone "$GITREPO" -q "$RVMPATH" && printf_blue "Downloaded RVM from $GITREPO" || printf_exit "Failed to download the repo from $GITREPO" >&2
-      cd "$RVMPATH" && bash -s install
+      cd "$RVMPATH" && bash -s install &>/dev/null
       bash -c $RVMPATH/install --path $RVMPATH/scripts/rvm --ignore-dotfiles --ruby --rails &>/dev/null || printf_exit "Failed to install RVM"
     fi
     [[ -f "$RVMPATH/scripts/rvm" ]] && source "$RVMPATH/scripts/rvm" &&
