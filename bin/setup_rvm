@@ -61,25 +61,21 @@ main() {
   export PATH RVMPATH
   [[ -d "$RVMPATH/.git" ]] || rm -Rf "$RVMPATH" &>/dev/null
   [[ -f "$RVMPATH/scripts/rvm" ]] && source "$RVMPATH/scripts/rvm"
-  if [ -n "$(command -v rvm)" ]; then
-    printf_green "RVM is already installed"
+  printf_green "installing RVM.... This may take some time"
+  if [ -d "$RVMPATH./git" ]; then
+    git -C "$RVMPATH" &>/dev/null && printf_blue "Updated RVM from " || printf_exit "Failed to download the repo from $GITREPO" >&2
+    cd "$RVMPATH" && bash -s install &>/dev/null
+    bash -c $RVMPATH/install &>/dev/null
   else
-    printf_green "installing RVM.... This may take some time"
-    if [ -d "$RVMPATH./git" ]; then
-      git -C "$RVMPATH" &>/dev/null && printf_blue "Updated RVM from " || printf_exit "Failed to download the repo from $GITREPO" >&2
-      cd "$RVMPATH" && bash -s install &>/dev/null
-      bash -c $RVMPATH/install &>/dev/null
-    else
-      git clone "$GITREPO" -q "$RVMPATH" && printf_blue "Downloaded RVM from $GITREPO" || printf_exit "Failed to download the repo from $GITREPO" >&2
-      cd "$RVMPATH" && bash -s install &>/dev/null
-      bash -c $RVMPATH/install --path $RVMPATH/scripts/rvm --ignore-dotfiles --ruby --rails &>/dev/null || printf_exit "Failed to install RVM"
-    fi
-    [[ -f "$RVMPATH/scripts/rvm" ]] && source "$RVMPATH/scripts/rvm" &&
-      rvm autolibs enable &>/dev/null &&
-      rvm install "ruby-2.7.1" --auto-dotfiles &>/dev/null &&
-      rvm use "ruby-2.7.1" --default --create &>/dev/null &&
-      printf_green "Finished installing RVM!" || printf_exit "Installation of RVM has failed" >&2
+    git clone "$GITREPO" -q "$RVMPATH" && printf_blue "Downloaded RVM from $GITREPO" || printf_exit "Failed to download the repo from $GITREPO" >&2
+    cd "$RVMPATH" && bash -s install &>/dev/null
+    bash -c $RVMPATH/install --path $RVMPATH/scripts/rvm --ignore-dotfiles --ruby --rails &>/dev/null || printf_exit "Failed to install RVM"
   fi
+  [[ -f "$RVMPATH/scripts/rvm" ]] && source "$RVMPATH/scripts/rvm" &&
+    rvm autolibs enable &>/dev/null &&
+    rvm install "ruby-2.7.1" --auto-dotfiles &>/dev/null &&
+    rvm use "ruby-2.7.1" --default --create &>/dev/null &&
+    printf_green "Finished installing RVM!" || printf_exit "Installation of RVM has failed" >&2
   return "${exitCode:-$?}"
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
