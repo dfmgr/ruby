@@ -53,7 +53,6 @@ main() {
   # Required app check
   cmd_exists --error bash curl git || exit 1
   am_i_online --error || exit 1
-  printf_exit 2 0 "Currently broken - see http://github.com/rvm/rvm" >&2
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # begin main app
   local RVMPATH="$HOME/.local/share/rvm"
