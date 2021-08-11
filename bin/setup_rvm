@@ -68,7 +68,11 @@ main() {
   [[ -d "$RVMPATH/.git" ]] || rm -Rf "$RVMPATH" &>/dev/null
   [[ -f "$RVMPATH/scripts/rvm" ]] && source "$RVMPATH/scripts/rvm"
   printf_green "Downloading RVM from $GITREPO"
-  git clone "$GITREPO" -q "$TMPDIR" && printf_blue "Downloaded RVM from $GITREPO" || printf_exit "Failed to download the repo" >&2
+  if git clone "$GITREPO" -q "$TMPDIR" &>/dev/null; then
+    printf_blue "Downloaded RVM from $GITREPO"
+  else
+    printf_exit "Failed to download the repo" >&2
+  fi
   printf_green "Installing RVM to $RVMPATH"
   cd "$TMPDIR" && bash -c "$TMPDIR/install" &>/dev/null
   [[ -f "$RVMPATH/scripts/rvm" ]] && source "$RVMPATH/scripts/rvm" &&
