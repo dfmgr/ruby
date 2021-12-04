@@ -49,6 +49,7 @@ main() {
   case $1 in
   -v | --version) __version ;;
   -h | --help) __help ;;
+  -s | --set) rmv_version="$2" && shift 2 ;;
   esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Required app check
@@ -60,7 +61,7 @@ main() {
   local RVMPATH="$rvm_path"
   local PATH="$RVMPATH/bin:$PATH"
   local GITREPO="https://github.com/rvm/rvm"
-  local version="2.7.4"
+  local version="${rmv_version:-2.7.4}"
   export PATH RVMPATH rvm_path
   printf_blue "Initializing RVM Setup"
   [[ -d "$HOME/tmp/rvm_install" ]] && rm -Rf "$HOME/tmp/rvm_install" &>/dev/null
