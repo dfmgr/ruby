@@ -49,6 +49,7 @@ main() {
   case $1 in
   -v | --version) __version ;;
   -h | --help) __help ;;
+  --force) shift 1 && FORCE="true" ;;
   esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Required app check
@@ -56,7 +57,7 @@ main() {
   am_i_online --error || exit 1
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # begin main app
-  if builtin type -P jekyll 2>&1 | grep "$HOME" &>/dev/null; then
+  if [[ "$FORCE" != "true" ]] && builtin type -P jekyll 2>&1 | grep "$HOME" &>/dev/null; then
     printf_green "jekyll is already installed"
   else
     printf_blue "Installing bundler and jekyll"
@@ -64,7 +65,8 @@ main() {
     gem install bundler &>/dev/null
     gem install jekyll &>/dev/null && bundle update &>/dev/null
     if builtin type -P jekyll 2>&1 | grep "$HOME" &>/dev/null; then
-      printf_green "Finished installing jekyll!"
+      version="$(jekyll -v | tr ' ' '\n' | grep '[0-9].[0-9]')"
+      printf_green "Finished installing jekyll $version"
       exitCode=0
     else
       printf_red "Installation of jekyll has failed" >&2
