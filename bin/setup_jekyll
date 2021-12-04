@@ -59,11 +59,9 @@ main() {
   if builtin type -P jekyll 2>&1 | grep "$HOME" &>/dev/null; then
     printf_green "jekyll is already installed"
   else
-    printf_blue "Updating gems"
+    printf_blue "Installing bundler and jekyll"
     gem update &>/dev/null
-    printf_blue "Installing bundler"
     gem install bundler &>/dev/null
-    printf_blue "Initializing jekyll Setup"
     gem install jekyll &>/dev/null && bundle update &>/dev/null
     if builtin type -P jekyll 2>&1 | grep "$HOME" &>/dev/null; then
       printf_green "Finished installing jekyll!"
