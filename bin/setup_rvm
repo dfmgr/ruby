@@ -57,7 +57,7 @@ main() {
   am_i_online --error || exit 1
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # begin main app
-  local rvm_path="$HOME/.local/share/rvm"
+  local rvm_path="${rvm_path:-$HOME/.local/share/rvm}"
   local RVMPATH="$rvm_path"
   local PATH="$RVMPATH/bin:$PATH"
   local GITREPO="https://github.com/rvm/rvm"
