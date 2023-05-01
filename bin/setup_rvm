@@ -1,92 +1,95 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
+# shellcheck shell=sh
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PROG="install_rvm"
-USER="${SUDO_USER:-${USER}}"
-HOME="${USER_HOME:-${HOME}}"
-SRC_DIR="${BASH_SOURCE%/*}"
+##@Version           :  202305011506-git
+# @@Author           :  Jason Hempstead
+# @@Contact          :  jason@casjaysdev.com
+# @@License          :  WTFPL
+# @@ReadME           :  setup_rvm --help
+# @@Copyright        :  Copyright: (c) 2023 Jason Hempstead, Casjays Developments
+# @@Created          :  Monday, May 01, 2023 15:06 EDT
+# @@File             :  setup_rvm
+# @@Description      :  Ruby Version Manager installer
+# @@Changelog        :  New script
+# @@TODO             :  Better documentation
+# @@Other            :
+# @@Resource         :
+# @@Terminal App     :  no
+# @@sudo/root        :  no
+# @@Template         :  shell/sh
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#set opts
-trap 'exitCode=${exitCode:-$?};[[ -d "$HOME/tmp/rvm_install" ]] && rm -Rf "$HOME/tmp/rvm_install" &>/dev/null' EXIT
-
+# shellcheck disable=SC2317
+# shellcheck disable=SC2120
+# shellcheck disable=SC2155
+# shellcheck disable=SC2199
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-##@Version       : 031520211551-git
-# @Author        : Jason Hempstead
-# @Contact       : jason@casjaysdev.com
-# @License       : WTFPL
-# @ReadME        : install_rvm --help
-# @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
-# @Created       : Monday, Mar 15, 2021 15:51 EDT
-# @File          : install_rvm
-# @Description   : Ruby Version Manager installer
-# @TODO          :
-# @Other         :
-# @Resource      :
+APPNAME="$(basename "$0" 2>/dev/null)"
+VERSION="202305011506-git"
+RUN_USER="$USER"
+SET_UID="$(id -u)"
+SCRIPT_SRC_DIR="$(cd "$(dirname "$0")" && pwd)"
+SETUP_RVM_CWD="$(realpath "$PWD")"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Main function file
-if [ -f "$SRC_DIR/functions.bash" ]; then
-  FUNCTIONS_DIR="$SRC_DIR"
-  . "$FUNCTIONS_DIR/functions.bash"
-elif [ -f "$HOME/.local/bin/functions.bash" ]; then
-  FUNCTIONS_DIR="$HOME/.local/bin"
-  . "$FUNCTIONS_DIR/functions.bash"
+# colorization
+if [ "$SHOW_RAW" = "true" ]; then
+  __printf_color() { printf '%b' "$1\n" | tr -d '\t' | sed '/^%b$/d;s,\x1B\[ 0-9;]*[a-zA-Z],,g'; }
 else
-  printf "\t\t\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $FUNCTIONS_DIR"
-  return 1
+  __printf_color() { { [ -z "$2" ] || DEFAULT_COLOR=$2; } && printf "%b" "$(tput setaf "$DEFAULT_COLOR" 2>/dev/null)" "$1\n" "$(tput sgr0 2>/dev/null)"; }
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# helper function
-__version() { app_version; }
-__help() {
-  app_help "Usage: install_rvm  -  install_rvm --version" \
-    "-v, --version          -  display version" \
-    "-h, --help             -  display help"
-}
+# check for command
+__cmd_exists() { which $1 >/dev/null 2>&1 || return 1; }
+__function_exists() { builtin type $1 >/dev/null 2>&1 || return 1; }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Main function
-main() {
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # options
-  case $1 in
-  -v | --version) __version ;;
-  -h | --help) __help ;;
-  -s | --set) rmv_version="$2" && shift 2 ;;
-  esac
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # Required app check
-  cmd_exists --error bash curl git || exit 1
-  am_i_online --error || exit 1
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # begin main app
-  local rvm_path="${rvm_path:-$HOME/.local/share/rvm}"
-  local RVMPATH="$rvm_path"
-  local PATH="$RVMPATH/bin:$PATH"
-  local GITREPO="https://github.com/rvm/rvm"
-  local version="${rmv_version:-2.7.4}"
-  export PATH RVMPATH rvm_path
-  printf_blue "Initializing RVM Setup"
-  [[ -d "$HOME/tmp/rvm_install" ]] && rm -Rf "$HOME/tmp/rvm_install" &>/dev/null
-  [[ -d "$RVMPATH/.git" ]] || rm -Rf "$RVMPATH" &>/dev/null
-  [[ -f "$RVMPATH/scripts/rvm" ]] && source "$RVMPATH/scripts/rvm"
-  printf_green "Downloading RVM from $GITREPO"
-  if git clone "$GITREPO" -q "$HOME/tmp/rvm_install" &>/dev/null; then
-    printf_blue "Downloaded RVM from $GITREPO"
+# custom functions
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Define variables
+[ -n "$rvm_path" ] || rvm_path="$HOME/.local/share/rvm"
+[ -n "$SETUP_RVM_VERSION" ] || SETUP_RVM_VERSION="2.7"
+DEFAULT_COLOR="254"
+SETUP_RVM_EXIT_STATUS=0
+SETUP_RVM_GIT_REPO="https://github.com/rvm/rvm"
+SETUP_RVM_PATH="$rvm_path"
+export rvm_path
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Main application
+if [ -d "$SETUP_RVM_PATH" ]; then
+  __printf_color "Updating rvm in $SETUP_RVM_PATH" 2
+  . "$SETUP_RVM_PATH/scripts/rvm"
+  rvm get stable >/dev/null 2>&1
+  rvm reload >/dev/null 2>&1
+else
+  __printf_color "Downloading RVM from $SETUP_RVM_GIT_REPO" 6
+  [ -d "$SETUP_RVM_PATH" ] || rm -Rf "$SETUP_RVM_PATH" >/dev/null 2>&1
+  [ -d "$HOME/tmp/rvm_install" ] && rm -Rf "$HOME/tmp/rvm_install" >/dev/null 2>&1
+  if git clone "$SETUP_RVM_GIT_REPO" -q "$HOME/tmp/rvm_install" >/dev/null 2>&1; then
+    cd "$HOME/tmp/rvm_install" && bash -c "$HOME/tmp/rvm_install/install" >/dev/null 2>&1
+    [ $? -ne 0 ] && __printf_color "Failed to install rvm" >&2 && exit 1
+    . "$SETUP_RVM_PATH/scripts/rvm"
+    rvm reload >/dev/null 2>&1
   else
-    printf_exit "Failed to download the repo" >&2
+    __printf_color "Failed to download the repo" 1 >&2
+    exit 1
   fi
-  printf_green "Installing RVM to $RVMPATH"
-  cd "$HOME/tmp/rvm_install" && bash -c "$HOME/tmp/rvm_install/install" &>/dev/null
-  [[ -f "$RVMPATH/scripts/rvm" ]] && source "$RVMPATH/scripts/rvm" &&
-    printf_green "Installing RVM ruby $version" &&
-    rvm autolibs enable &>/dev/null &&
-    rvm install "ruby-$version" --auto-dotfiles &>/dev/null &&
-    rvm use "ruby-$version" --default --create &>/dev/null &&
-    printf_green "Finished installing RVM!" || printf_exit "Installation of RVM has failed" >&2
-  return "${exitCode:-$?}"
-}
+fi
+if [ -f "$SETUP_RVM_PATH/scripts/rvm" ]; then
+  __printf_color "Installing ruby $SETUP_RVM_VERSION" 4
+  type rvm >/dev/null 2>&1 || { __printf_color "Failed to load rvm" 1 && exit 1; }
+  rvm autolibs enable >/dev/null 2>&1
+  rvm install "ruby-$SETUP_RVM_VERSION" --auto-dotfiles --verify-downloads 2 >/dev/null 2>&1
+  rvm use "ruby-$SETUP_RVM_VERSION" --default --create >/dev/null 2>&1 || SETUP_RVM_EXIT_STATUS=$((SETUP_RVM_EXIT_STATUS + 1))
+  # shellcheck disable=SC1010
+  rvm default do rvm gemset create >/dev/null 2>&1 && __printf_color "Created default gemset" 190
+fi
+[ -d "$HOME/tmp/rvm_install" ] && rm -Rf "$HOME/tmp/rvm_install"
+version="$(ruby --version | sed 's|[rR]uby ||g;s| .*||g')"
+[ "$SETUP_RVM_EXIT_STATUS" -eq 0 ] && __printf_color "Finished installing RVM! $version" 32 || __printf_color "Installation of RVM has failed" 1 >&2
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# execute function
-main "$@"
+# End application
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-exit $?
+# lets exit with code
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# end
+exit $SETUP_RVM_EXIT_STATUS
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# ex: ts=2 sw=2 et filetype=sh
