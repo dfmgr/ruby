@@ -82,8 +82,8 @@ if [ -f "$SETUP_RVM_PATH/scripts/rvm" ]; then
   rvm reload >>"$SETUP_RVM_LOG_FILE" 2>&1
   type rvm >>"$SETUP_RVM_LOG_FILE" 2>&1 || { __printf_color "Failed to load rvm" 1 && exit 1; }
   rvm autolibs enable >>"$SETUP_RVM_LOG_FILE" 2>&1
-  rvm install "ruby-$SETUP_RVM_VERSION" --auto-dotfiles --verify-downloads 2 >>"$SETUP_RVM_LOG_FILE" 2>&1
-  rvm use "ruby-$SETUP_RVM_VERSION" --default --create >>"$SETUP_RVM_LOG_FILE" 2>&1 || SETUP_RVM_EXIT_STATUS=$((SETUP_RVM_EXIT_STATUS + 1))
+  rvm install ruby-$SETUP_RVM_VERSION --auto-dotfiles --verify-downloads 2 >>"$SETUP_RVM_LOG_FILE" 2>&1
+  rvm use ruby-$SETUP_RVM_VERSION --default --create >>"$SETUP_RVM_LOG_FILE" 2>&1 || SETUP_RVM_EXIT_STATUS=$((SETUP_RVM_EXIT_STATUS + 1))
   # shellcheck disable=SC1010
   rvm default do rvm gemset create >>"$SETUP_RVM_LOG_FILE" 2>&1 && __printf_color "Created default gemset" 190
 fi
