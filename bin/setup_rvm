@@ -64,7 +64,7 @@ else
   [ -d "$SETUP_RVM_PATH" ] || rm -Rf "$SETUP_RVM_PATH" >/dev/null 2>&1
   [ -d "$HOME/tmp/rvm_install" ] && rm -Rf "$HOME/tmp/rvm_install" >/dev/null 2>&1
   if git clone "$SETUP_RVM_GIT_REPO" -q "$HOME/tmp/rvm_install" >/dev/null 2>&1; then
-    cd "$HOME/tmp/rvm_install" && bash -c "$HOME/tmp/rvm_install/install" >/dev/null 2>&1
+    cd "$HOME/tmp/rvm_install" && bash "$HOME/tmp/rvm_install/install" >/dev/null 2>&1
     [ $? -ne 0 ] && __printf_color "Failed to install rvm" >&2 && exit 1
     . "$SETUP_RVM_PATH/scripts/rvm"
     rvm reload >/dev/null 2>&1

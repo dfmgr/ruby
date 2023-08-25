@@ -64,7 +64,7 @@ if ! __cmd_exists bundler; then
 fi
 __printf_color "Installing jekyll $SETUP_JEKYLL_VERSION" 4
 gem install jekyll -v $SETUP_JEKYLL_VERSION >/dev/null 2>&1
-gem install github-pages >/dev/null 2>&1
+gem install casjaysdev-jekyll-theme >/dev/null 2>&1
 bundle update >/dev/null 2>&1
 if builtin type -P jekyll 2>&1 | grep -q "$HOME" >/dev/null 2>&1; then
   version="$(jekyll -v 2>/dev/null | grep '[0-9]' | sed 's|[jJ]ekyll ||g')"
