@@ -57,21 +57,20 @@ export rvm_path
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Main application
 [ -d "$SETUP_RVM_LOG_DIR" ] || mkdir -p "$SETUP_RVM_LOG_DIR"
+__printf_color "Setting log file to $SETUP_RVM_LOG_FILE"
 if [ -d "$SETUP_RVM_PATH" ]; then
-  __printf_color "Setting log file to $SETUP_RVM_LOG_FILE"
   __printf_color "Updating rvm in $SETUP_RVM_PATH" 2
   . "$SETUP_RVM_PATH/scripts/rvm"
-  rvm get stable >>"$SETUP_RVM_LOG_FILE"
-  rvm reload >>"$SETUP_RVM_LOG_FILE"
+  rvm get stable >>"$SETUP_RVM_LOG_FILE" 2>&1
+  rvm reload >>"$SETUP_RVM_LOG_FILE" 2>&1
 else
   __printf_color "Downloading RVM from $SETUP_RVM_GIT_REPO" 6
-  [ -d "$SETUP_RVM_PATH" ] || rm -Rf "$SETUP_RVM_PATH" >>"$SETUP_RVM_LOG_FILE"
-  [ -d "$HOME/tmp/rvm_install" ] && rm -Rf "$HOME/tmp/rvm_install" >>"$SETUP_RVM_LOG_FILE"
-  if git clone "$SETUP_RVM_GIT_REPO" -q "$HOME/tmp/rvm_install" >>"$SETUP_RVM_LOG_FILE"; then
-    cd "$HOME/tmp/rvm_install" && bash "$HOME/tmp/rvm_install/install" >>"$SETUP_RVM_LOG_FILE"
-    [ $? -ne 0 ] && __printf_color "Failed to install rvm" >&2 && exit 1
+  [ -d "$SETUP_RVM_PATH" ] || rm -Rf "$SETUP_RVM_PATH" >>"$SETUP_RVM_LOG_FILE" 2>&1
+  [ -d "$HOME/tmp/rvm_install" ] && rm -Rf "$HOME/tmp/rvm_install" >>"$SETUP_RVM_LOG_FILE" 2>&1
+  if git clone "$SETUP_RVM_GIT_REPO" -q "$HOME/tmp/rvm_install" >>"$SETUP_RVM_LOG_FILE" 2>&1; then
+    cd "$HOME/tmp/rvm_install" && bash "$HOME/tmp/rvm_install/install" >>"$SETUP_RVM_LOG_FILE" 2>&1
+    [ -f "$HOME/tmp/rvm_install/install" ] || __printf_color "Failed to install rvm" >&2 && exit 1
     . "$SETUP_RVM_PATH/scripts/rvm"
-    rvm reload >>"$SETUP_RVM_LOG_FILE"
   else
     __printf_color "Failed to download the repo" 1 >&2
     exit 1
@@ -79,12 +78,13 @@ else
 fi
 if [ -f "$SETUP_RVM_PATH/scripts/rvm" ]; then
   __printf_color "Installing ruby $SETUP_RVM_VERSION" 4
-  type rvm >>"$SETUP_RVM_LOG_FILE" || { __printf_color "Failed to load rvm" 1 && exit 1; }
-  rvm autolibs enable >>"$SETUP_RVM_LOG_FILE"
-  rvm install "ruby-$SETUP_RVM_VERSION" --auto-dotfiles --verify-downloads 2 >>"$SETUP_RVM_LOG_FILE"
-  rvm use "ruby-$SETUP_RVM_VERSION" --default --create >>"$SETUP_RVM_LOG_FILE" || SETUP_RVM_EXIT_STATUS=$((SETUP_RVM_EXIT_STATUS + 1))
+  rvm reload >>"$SETUP_RVM_LOG_FILE" 2>&1
+  type rvm >>"$SETUP_RVM_LOG_FILE" 2>&1 || { __printf_color "Failed to load rvm" 1 && exit 1; }
+  rvm autolibs enable >>"$SETUP_RVM_LOG_FILE" 2>&1
+  rvm install "ruby-$SETUP_RVM_VERSION" --auto-dotfiles --verify-downloads 2 >>"$SETUP_RVM_LOG_FILE" 2>&1
+  rvm use "ruby-$SETUP_RVM_VERSION" --default --create >>"$SETUP_RVM_LOG_FILE" 2>&1 || SETUP_RVM_EXIT_STATUS=$((SETUP_RVM_EXIT_STATUS + 1))
   # shellcheck disable=SC1010
-  rvm default do rvm gemset create >>"$SETUP_RVM_LOG_FILE" && __printf_color "Created default gemset" 190
+  rvm default do rvm gemset create >>"$SETUP_RVM_LOG_FILE" 2>&1 && __printf_color "Created default gemset" 190
 fi
 [ -d "$HOME/tmp/rvm_install" ] && rm -Rf "$HOME/tmp/rvm_install"
 version="$(ruby --version | sed 's|[rR]uby ||g;s| .*||g')"
