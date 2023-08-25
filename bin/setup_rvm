@@ -53,6 +53,7 @@ SETUP_RVM_GIT_REPO="https://github.com/rvm/rvm"
 SETUP_RVM_PATH="$rvm_path"
 SETUP_RVM_LOG_DIR="${LOG_DIR:-$HOME/.local/log/$APPNAME}"
 SETUP_RVM_LOG_FILE="$SETUP_RVM_LOG_DIR/$$.log"
+export PATH="$rvm_path/bin:$PATH"
 export rvm_path
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Main application
