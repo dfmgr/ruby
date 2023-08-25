@@ -48,25 +48,30 @@ __function_exists() { builtin type $1 >/dev/null 2>&1 || return 1; }
 DEFAULT_COLOR="254"
 SETUP_JEKYLL_EXIT_STATUS=0
 SETUP_JEKYLL_VERSION="3.9.3"
+SETUP_RVM_LOG_DIR="${LOG_DIR:-$HOME/.local/log/$APPNAME}"
+SETUP_RVM_LOG_FILE="$SETUP_RVM_LOG_DIR/$$.log"
+[ -d "$SETUP_RVM_LOG_DIR" ] || mkdir -p "$SETUP_RVM_LOG_DIR"
+
 [ -n "$GEM_HOME" ]
 [ -n "$rvm_path" ] || rvm_path="$HOME/.local/share/rvm"
 if [ -f "$rvm_path/scripts/rvm" ]; then
   . "$rvm_path/scripts/rvm"
-  rvm reload >/dev/null 2>&1
-  rvm use default >/dev/null 2>&1
-  type rvm >/dev/null 2>&1 && __printf_color "Using rvm to install jekyll"
+  rvm reload >>"$SETUP_RVM_LOG_FILE"
+  rvm use default >>"$SETUP_RVM_LOG_FILE"
+  type rvm >>"$SETUP_RVM_LOG_FILE" && __printf_color "Using rvm to install jekyll"
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Main application
+__printf_color "Setting log file to $SETUP_RVM_LOG_FILE"
 if ! __cmd_exists bundler; then
   __printf_color "Installing bundler" 5
-  gem install bundler >/dev/null 2>&1
+  gem install bundler >>"$SETUP_RVM_LOG_FILE"
 fi
 __printf_color "Installing jekyll $SETUP_JEKYLL_VERSION" 4
-gem install jekyll -v $SETUP_JEKYLL_VERSION >/dev/null 2>&1
-gem install casjaysdev-jekyll-theme >/dev/null 2>&1
-bundle update >/dev/null 2>&1
-if builtin type -P jekyll 2>&1 | grep -q "$HOME" >/dev/null 2>&1; then
+gem install jekyll -v $SETUP_JEKYLL_VERSION >>"$SETUP_RVM_LOG_FILE"
+gem install casjaysdev-jekyll-theme >>"$SETUP_RVM_LOG_FILE"
+bundle update >>"$SETUP_RVM_LOG_FILE"
+if builtin type -P jekyll 2>&1 | grep -q "$HOME" >>"$SETUP_RVM_LOG_FILE"; then
   version="$(jekyll -v 2>/dev/null | grep '[0-9]' | sed 's|[jJ]ekyll ||g')"
   __printf_color "Finished installing jekyll $version" 6
   SETUP_JEKYLL_EXIT_STATUS=0
